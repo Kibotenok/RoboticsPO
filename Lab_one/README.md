@@ -25,3 +25,10 @@ FolderInfo.sh [DIRECTORY]
 + Access Rights (Права доступа к файлу/подкаталогу);  
 + Files Inside (Количество файлов в подкаталоге. Для файлов ставится символ '-');  
 + Duration (Длительность видео/аудио файлов в формате ч:м:с.сс);  
+
+**ПРИМЕР ВЫВОДА:**  
+![alt tag](https://drive.google.com/open?id=1Kk9tA52Yr346OZPUsYl4EhyRuQM11F-G "Тестовая папка")  
+![alt tag](https://drive.google.com/open?id=1D1H7iBXdu92zCiIHTF-e0NR2zIUmF8JV "Вывод сообщения после завершения скрипта")  
+
+**РЕЗУЛЬТАТ:**  
+Результат работы скрипта находится в папке Result
