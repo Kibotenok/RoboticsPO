@@ -8,6 +8,7 @@ package_install()
 
 	if [ -z "$(dpkg --get-selections | grep "$package")" ] ; then
 		echo "Error: Package $package not found. Use 'apt install' command to install it"
+		exit 1
 	fi
 }
 
