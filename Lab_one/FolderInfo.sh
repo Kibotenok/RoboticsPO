@@ -20,7 +20,7 @@ path_choice()
 		
 		if [ -d "$1" ] ; then
 			dpath="$1"
-    
+		
 		elif [ -f "$1" ] ; then
 			echo "Error: Expected directory, not file"
 			exit 1
@@ -39,26 +39,24 @@ head_write()
 	# Записывает заголовки колонок в таблицу
 	
 	IFS=:
-	echo "" | awk -v arr="${heads[*]}" '{split(arr, heads, ":"); for (head in heads) printf "%s,", heads[head]} END{printf "\n"}' > $output_file
+	echo "" | awk -v arr="${heads[*]}" '{split(arr, heads, ":"); for (head in heads) printf "%s,", heads[head]} 
+										END{printf "\n"}' > $output_file
 	IFS=$SAVEDIFS
 }
 
 size_calc()
 {
 	# Преобразование размера в байтах в понятный для человека формат
-	# Функция создана, так как в некоторых случаях команда du -h [FILE] возвращала некорректное значение
+	# Функция написана, так как в некоторых случаях команда du -h [FILE] возвращала некорректное значение
 	
 	if (( $size < 1024 )) ; then
-		return 0
+		size="$size"
 	elif (( $size < $((1024**2)) )) ; then
 		size="$(echo "scale=2;$size/1024" |bc)K"
-		return 0
 	elif (( $size < $((1024**3)) )) ; then
-		size="$(echo "scale=2;$size/1024**2" |bc)M"
-		return 0
+		size="$(echo "scale=2;$size/$((1024**2))" |bc)M"
 	else
-		size="$(echo "scale=2;$size/1024**3" |bc)G"
-		return 0
+		size="$(echo "scale=2;$size/$((1024**3))" |bc)G"
 	fi
 }
 
@@ -82,17 +80,21 @@ info_write()
 		files_inside="-"
 		
 		# Извлечение длительности медиафайлов
-		duration="$(ffprobe "$file" 2>&1 | awk -F'[:,]' '/Duration/ {printf("%02d:%02d:%02.2f", $2,$3,$4)}')" 
-		if [ -z $duration] ; then
+		duration="$(ffprobe "$file" 2>&1 |awk -F'[:,]' '/Duration/ {if ($3*60+$4+$2*360 > 0.05) 
+																	printf("%02d:%02d:%02.2f", $2, $3, $4);}')" 
+		if [ -z "$duration" ] ; then
 			duration="-"
 		fi
 	fi
-		
-	file_info=("$number" "$file" "$extension" "$(file -b "$file")" "$size" "$(date -r "$file" +"%T %D")"
-			"$(stat -c %U "$file")" "$(stat -c %A "$file")" "$files_inside" "$duration")
+	
+	content_type="$(file -b "$file")"
+	
+	file_info=("$file" "$extension" "${content_type%%,*}" "$size" "$(date -r "$file" +"%T %D")" 
+				"$(stat -c %U "$file")" "$(stat -c %A "$file")" "$files_inside" "$duration" "$number")
 	
 	IFS=$">"
-	echo "" | awk -v arr="${file_info[*]}" '{split(arr,row, ">"); for (col in row) printf "\"%s\",", row[col]} END{printf "\n"}' >> $output_file
+	echo "" | awk -v arr="${file_info[*]}" '{split(arr,row, ">"); for (col in row) printf "\"%s\",", row[col]} 
+											END{printf "\n"}' >> $output_file
 	IFS=$SAVEDIFS
 
 	number=$(($number+1))
@@ -104,7 +106,7 @@ info_write()
 
 output_file="FolderInfo.csv"
 package="ffmpeg"
-heads=("№" "File Name" "File Extension" "Type of content" "Size" "Date" "Owner" "Access Rights" "Files Inside" "Duration")
+heads=("File Name" "File Extension" "Type of content" "Size" "Date" "Owner" "Access Rights" "Files Inside" "Duration" "№")
 number=1
 
 package_install $package
