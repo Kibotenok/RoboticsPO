@@ -36,7 +36,7 @@ path_choice()
 
 head_write()
 {
-	# Записывает заголовки колонок в таблицу
+	# Записывает заголовки полей в таблицу
 	
 	IFS=:
 	echo "" | awk -v arr="${heads[*]}" '{split(arr, heads, ":"); for (head in heads) printf "%s,", heads[head]} 
@@ -79,7 +79,7 @@ info_write()
 
 		files_inside="-"
 		
-		# Извлечение длительности медиафайлов
+		# Извлечение длительности медиафайла
 		duration="$(ffprobe "$file" 2>&1 |awk -F'[:,]' '/Duration/ {if ($3*60+$4+$2*360 > 0.05) 
 																	printf("%02d:%02d:%02.2f", $2, $3, $4);}')" 
 		if [ -z "$duration" ] ; then
