@@ -6,7 +6,6 @@ FolderInfo.sh [DIRECTORY]
 При запуске скрипта могут возникнуть следующие ошибки:
 
 №|Сообщение об ошибке|Причина|
-
 -+
 1|Package [PACKAGE] not found. Use 'apt install' command to install it|Не обнаружен пакет, необходимый для работы скрипта. Скрипт завершает работу
 -+
