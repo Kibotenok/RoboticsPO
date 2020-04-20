@@ -1,0 +1,8 @@
+prefix=/home/aantropov/WORK/Study/PO/Labs/RoboticsPO/Laba_six/turtle_ws/install
+
+Name: id_painter
+Description: Description of id_painter
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

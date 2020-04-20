@@ -1,0 +1,2 @@
+id_painter
+-DCATKIN_DEVEL_PREFIX=/home/aantropov/WORK/Study/PO/Labs/RoboticsPO/Laba_six/turtle_ws/devel -DCMAKE_INSTALL_PREFIX=/home/aantropov/WORK/Study/PO/Labs/RoboticsPO/Laba_six/turtle_ws/install -G Unix Makefiles
