@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="turtlesim" type="turtlesim_node" name="turtlesim_node"/>
+  <node pkg="id_painter" type="IdPainter.py" name="id_painter_node" output="screen"/>
+</launch>

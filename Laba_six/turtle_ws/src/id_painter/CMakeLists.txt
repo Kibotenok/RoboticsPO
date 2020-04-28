@@ -10,6 +10,8 @@ project(id_painter)
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   rospy
+  turtlesim
+  std_srvs
 )
 
 ## System dependencies are found with CMake's conventions
