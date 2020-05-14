@@ -1,0 +1,42 @@
+include "maze_bot"
+
+window
+(
+	size [ 700 700]
+	scale 30
+	center [ 0 0 ]
+	rotate [ 0.000 0.000 ]
+	show_data 1
+)
+
+# Maze definition and settings
+define maze model
+(	
+	color "black"
+	
+	boundary 0
+	
+	gui_nose 1
+	gui_grid 0
+	
+	gui_outline 0
+	gripper_return 0
+	fiducial_return 0
+	ranger_return 1.000
+)
+
+maze 
+(
+	name "maze"
+	bitmap "Images/maze.png"
+	size [ 36 24 1 ]
+)
+
+# Robot init and settings
+maze_bot
+(
+	name "maze_bot"
+	bitmap "Images/maze_bot.png"
+	size [ 2 2 0.5 ]
+)
+
