@@ -1,5 +1,6 @@
-include "maze_bot"
+include "maze_bot.inc"
 
+# Window settings
 window
 (
 	size [ 700 700]
@@ -32,11 +33,13 @@ maze
 	size [ 36 24 1 ]
 )
 
-# Robot init and settings
+# Load robot settings
 maze_bot
 (
 	name "maze_bot"
+	color "green"
 	bitmap "Images/maze_bot.png"
 	size [ 2 2 0.5 ]
+	pose [ 1 1 0 90 ]
 )
 
