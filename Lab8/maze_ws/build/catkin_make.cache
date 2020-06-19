@@ -1,0 +1,2 @@
+wall_explorer
+-DCATKIN_DEVEL_PREFIX=/home/aantropov/WORK/Study/PO/RoboticsPO/Lab7/maze_ws/devel -DCMAKE_INSTALL_PREFIX=/home/aantropov/WORK/Study/PO/RoboticsPO/Lab7/maze_ws/install -G Unix Makefiles

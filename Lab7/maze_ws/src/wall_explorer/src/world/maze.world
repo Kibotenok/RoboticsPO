@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-=======
-include "maze_bot.inc"
-
-# Window settings
->>>>>>> 7a91e50a5aafbfd2bb849a1cbcdb660a98fd7fdd
 window
 (
 	size [ 1400 1400]
@@ -70,18 +64,12 @@ maze
 	pose [ 0.000 0.000 0.000 0.000 ]
 )
 
-# Load robot settings
+# Robot init and settings
 maze_bot
 (
 	name "maze_bot"
-	color "green"
 	bitmap "Images/maze_bot.png"
-<<<<<<< HEAD
 	size [ 0.800 0.800 0.500 ]
 	pose [ -8.000 -10.000 0.000 90.000 ]
-=======
-	size [ 2 2 0.5 ]
-	pose [ 1 1 0 90 ]
->>>>>>> 7a91e50a5aafbfd2bb849a1cbcdb660a98fd7fdd
 )
 

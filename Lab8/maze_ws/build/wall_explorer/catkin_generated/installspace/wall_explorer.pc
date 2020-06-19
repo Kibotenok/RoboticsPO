@@ -1,0 +1,8 @@
+prefix=/home/aantropov/WORK/Study/PO/RoboticsPO/Lab7/maze_ws/install
+
+Name: wall_explorer
+Description: Description of wall_explorer
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

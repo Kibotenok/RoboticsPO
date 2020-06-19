@@ -11,7 +11,7 @@ class MazeBot:
             :param tolerance: distance tolerance
         """
         self.tolerance = tolerance
-        self._STEP = 17
+        self._STEP = 29
         
         rospy.init_node("wall_explorer_node", anonymous=False) # Init node to control the turtle
         self._vel_publisher = rospy.Publisher('/cmd_vel', Twist,
@@ -19,14 +19,10 @@ class MazeBot:
         self._laser_subscriber = rospy.Subscriber('/base_scan', LaserScan,
                                                 self._update_laser)
         self._laser = LaserScan()
-        self._laser.ranges = [5.0 for i in range(90)]
+        self._laser.ranges = [1.0 for i in range(360)]
+        self._laser.range_max = 10.0
         # Connection rate in Hz
         self._rate = rospy.Rate(10)
-        
-        self._cur_error = 0
-        self._error = 0
-        self._prev_val = 0
-        self._prev_error = 0
         rospy.loginfo("The bot was created successfully\nTolerance for distance is {:.3f}".format(self.tolerance))
 
     def _update_laser(self, data):
@@ -35,8 +31,25 @@ class MazeBot:
         """
         self._laser = data
 
-    def _potetional_field(self):
+    def _random_goal(self):
+        """ Choose random coordinates
+
+            :return relative distance and angle
+        """
+        return abs(np.random.randn()*10), np.radians(np.random.randint(0, 360))
+
+    def _toXY(self, dis, ang):
+        """ Convert vector [dis, ang] to [x, y]
+            :param dis: vector length
+            :param ang: vector angle
+
+            :return vector [x, y]
+        """
+            return [dis*np.cos(ang), dis*np.sin(ang)]
+    
+    def _potetional_field(self, goal):
         """ Potentional field algorithm
+            :param goal: goal point
 
             :return length and angle of direction vector
         """
@@ -58,48 +71,47 @@ class MazeBot:
         length = np.linalg.norm(final_vector)/20
         return self._laser.ranges[45], -angle
         """
-        vectors = [np.mean(self._laser.ranges[i:i+self._STEP]) for i in range(0, 73, 18)]
-        if all((vectors[2] >= 5.0, vectors[1] >= 3.0, vectors[3] >= 3.0)):
-            return vectors[2], 0.0
-        elif vectors[0] < vectors[4]:
-            return 0.5, vectors[0]/vectors[4]
-        elif vectors[0] > vectors[4]:
-            return 0.5, -vectors[4]/vectors[0]
-        elif vectors[1] > vectors[3]:
-            return vectors[2], -vectors[3]/vectors[1]
-        else:
-            return vectors[2], vectors[1]/vectors[3]
+        vectors = [-500.0/x**2 if x > 0 else -500.0 for x in self._laser.ranges]
+        for i in range(0, len(vectors)):
+            vectors[i] = self._toXY(vectors[i], self._laser.angle_increment*i)
+        vectors = np.asarray(vectors)
+        np.append(vectors, goal)
+        final_vector = np.sum(vectors, axis=0)
+        return np.linalg.norm(final_vector), -np.arctan(final_vector[1]/final_vector[0])
         
-        
-    def _pid_control(self, target, kp, ki, kd):
+    def _pid_control(self, target, kp):
         """ Velocity PID control
             :param target: target velocity
             :param kp: proportional coefficient
             
             :return velocity value
         """
-        self._cur_error = target - self._prev_val
-        self._error += self._cur_error
-        p_part = kp*self._cur_error
-        i_part = ki*self._error
-        d_part = kd*(self._cur_error-self._prev_error)
-        self._prev_error = self._cur_error
+        p_part = kp*target
+        i_part = 0
+        d_part = 0
         return p_part + i_part + d_part
 
     def move(self):
         """Move the bot"""
         rospy.loginfo("The bot starts to move")
         vel = Twist()
-        dis, ang = self._potetional_field()
-        while dis >= self.tolerance:
+        clock = 3000
+        goal = [0.0, 0.0]
+        dis, ang = self._potetional_field(goal)
+        while self._laser.ranges[90] >= self.tolerance:
             # Get distance and angular
-            dis, ang = self._potetional_field()
+            if clock >= 500:
+                clock = 0
+                goal = self._toXY(self._random_goal())
+                
+            dis, ang = self._potetional_field(goal)
             rospy.loginfo("New vector: distance - {0:.3f}; angle - {1:.3f}".format(dis, ang))
             # Calculate and publish new velocity values
-            vel.angular.z = self._pid_control(ang, 60, 0.1, 0.2)
-            vel.linear.x = self._pid_control(dis, 1.5, 0.1, 0.2)
+            vel.angular.z = self._pid_control(ang, 70)
+            vel.linear.x = self._pid_control(dis, 1.5)
             self._vel_publisher.publish(vel)
             self._rate.sleep()
+            clock += 1
 
         # Stop the bot
         vel.linear.x = 0

@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-=======
-include "maze_bot.inc"
-
-# Window settings
->>>>>>> 7a91e50a5aafbfd2bb849a1cbcdb660a98fd7fdd
 window
 (
 	size [ 1400 1400]
@@ -15,9 +9,9 @@ window
 
 define lidar ranger (
 	sensor (	
-		samples 90
+		samples 360
 		range [ 0.0 10.0 ]
-		fov 180 
+		fov 360 
 	)
 	color "black"
 	size [ 0.050 0.050 0.100 ]
@@ -44,6 +38,7 @@ define maze model
 	
 	gui_nose 0
 	gui_grid 0
+	gui_move 1
 	
 	gui_outline 0
 	gripper_return 0
@@ -70,18 +65,12 @@ maze
 	pose [ 0.000 0.000 0.000 0.000 ]
 )
 
-# Load robot settings
+# Robot init and settings
 maze_bot
 (
 	name "maze_bot"
-	color "green"
 	bitmap "Images/maze_bot.png"
-<<<<<<< HEAD
 	size [ 0.800 0.800 0.500 ]
 	pose [ -8.000 -10.000 0.000 90.000 ]
-=======
-	size [ 2 2 0.5 ]
-	pose [ 1 1 0 90 ]
->>>>>>> 7a91e50a5aafbfd2bb849a1cbcdb660a98fd7fdd
 )
 

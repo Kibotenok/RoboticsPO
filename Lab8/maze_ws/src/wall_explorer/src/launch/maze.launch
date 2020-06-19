@@ -1,0 +1,5 @@
+<launch>
+	<arg name="world_file" default="$(roscd wall_explorer)/World/maze.world"/>
+	<node pkg="stage_ros" type="stageros" args="$(arg world_file)"/>
+	<node pkg="wall_explorer" type="main.py" name="wall_explorer_node" output="screen"/>
+</launch>
