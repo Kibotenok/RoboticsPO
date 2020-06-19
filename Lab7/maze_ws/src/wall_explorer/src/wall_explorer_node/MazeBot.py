@@ -22,12 +22,8 @@ class MazeBot:
         self._laser.ranges = [5.0 for i in range(90)]
         # Connection rate in Hz
         self._rate = rospy.Rate(10)
-        
-        self._cur_error = 0
-        self._error = 0
-        self._prev_val = 0
-        self._prev_error = 0
-        self._integral = 0
+
+        self.pid = {'d': [0, 0, 0, 0, 0], 'a': [0, 0, 0, 0, 0]}
         rospy.loginfo("The bot was created successfully\nTolerance for distance is {:.3f}".format(self.tolerance))
 
     def _update_laser(self, data):
@@ -72,20 +68,20 @@ class MazeBot:
             return vectors[2], vectors[1]/vectors[3]
         
         
-    def _pid_control(self, target, kp, ki, kd):
+    def _pid_control(self, target, kp, ki, kd, val):
         """ Velocity PID control
             :param target: target velocity
             :param kp: proportional coefficient
             
             :return velocity value
         """
-        self._cur_error = target - self._prev_val
-        self._error += self._cur_error
-        p_part = kp*self._cur_error
-        i_part = ki*self._error + self._integral
+        self.pid[val][0] = target - self.pid[val][2]
+        self.pid[val][1] += self.pid[val][0]
+        p_part = kp*self.pid[val][0]
+        i_part = ki*self.pid[val][1] + self.pid[val][4]
         self._integral = i_part
-        d_part = kd*(self._cur_error-self._prev_error)
-        self._prev_error = self._cur_error
+        d_part = kd*(self.pid[val][0]-self.pid[val][3])
+        self.pid[val][3] = self.pid[val][0]
         return p_part + i_part + d_part
 
     def move(self):
@@ -98,8 +94,8 @@ class MazeBot:
             dis, ang = self._potetional_field()
             rospy.loginfo("New vector: distance - {0:.3f}; angle - {1:.3f}".format(dis, ang))
             # Calculate and publish new velocity values
-            vel.angular.z = self._pid_control(ang, 60, 0, 0)
-            vel.linear.x = self._pid_control(dis, 1.5, 0, 0)
+            vel.angular.z = self._pid_control(ang, 60, 0, 0, 'd')
+            vel.linear.x = self._pid_control(dis, 1.5, 0, 0, 'a')
             self._vel_publisher.publish(vel)
             self._rate.sleep()
 
