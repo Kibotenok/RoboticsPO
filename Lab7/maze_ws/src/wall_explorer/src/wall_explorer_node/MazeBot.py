@@ -27,6 +27,7 @@ class MazeBot:
         self._error = 0
         self._prev_val = 0
         self._prev_error = 0
+        self._integral = 0
         rospy.loginfo("The bot was created successfully\nTolerance for distance is {:.3f}".format(self.tolerance))
 
     def _update_laser(self, data):
@@ -81,7 +82,8 @@ class MazeBot:
         self._cur_error = target - self._prev_val
         self._error += self._cur_error
         p_part = kp*self._cur_error
-        i_part = ki*self._error
+        i_part = ki*self._error + self._integral
+        self._integral = i_part
         d_part = kd*(self._cur_error-self._prev_error)
         self._prev_error = self._cur_error
         return p_part + i_part + d_part
@@ -96,8 +98,8 @@ class MazeBot:
             dis, ang = self._potetional_field()
             rospy.loginfo("New vector: distance - {0:.3f}; angle - {1:.3f}".format(dis, ang))
             # Calculate and publish new velocity values
-            vel.angular.z = self._pid_control(ang, 60, 0.1, 0.2)
-            vel.linear.x = self._pid_control(dis, 1.5, 0.1, 0.2)
+            vel.angular.z = self._pid_control(ang, 60, 0, 0)
+            vel.linear.x = self._pid_control(dis, 1.5, 0, 0)
             self._vel_publisher.publish(vel)
             self._rate.sleep()
 

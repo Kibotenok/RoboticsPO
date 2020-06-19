@@ -37,7 +37,10 @@ cd "$goal_dir/maze_ws"
 source devel/setup.bash
 roscd wall_explorer/
 chmod u+x src/id_painter_node/main.py
-roslaunch wall_explorer maze.launch
+roscore
+rosrun stage_ros stageros src/world/maze.world
+rosrun wall_explorer main.py
+#roslaunch wall_explorer maze.launch - ошибка
 
 cd "$cur_dir" > /dev/null
 exit 0
