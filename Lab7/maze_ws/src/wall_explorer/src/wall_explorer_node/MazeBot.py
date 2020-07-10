@@ -3,6 +3,9 @@ import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 import numpy as np
+import random
+from PID import PID
+
 
 class MazeBot:
 
@@ -23,7 +26,8 @@ class MazeBot:
         # Connection rate in Hz
         self._rate = rospy.Rate(10)
 
-        self.pid = {'d': [0, 0, 0, 0, 0], 'a': [0, 0, 0, 0, 0]}
+        self._dis_pid = PID(1, 0, 0)
+        self._ang_pid = PID(60, 0, 0)
         rospy.loginfo("The bot was created successfully\nTolerance for distance is {:.3f}".format(self.tolerance))
 
     def _update_laser(self, data):
@@ -55,35 +59,25 @@ class MazeBot:
         length = np.linalg.norm(final_vector)/20
         return self._laser.ranges[45], -angle
         """
-        vectors = [np.mean(self._laser.ranges[i:i+self._STEP]) for i in range(0, 73, 18)]
-        if all((vectors[2] >= 5.0, vectors[1] >= 3.0, vectors[3] >= 3.0)):
+        vectors = [np.min(self._laser.ranges[i:i+self._STEP]) for i in range(0, 73, 18)]
+        dis = [all((vectors[2] >= 2.0, vectors[1] >= 1.0, vectors[3] >= 1.0)), vectors[0] < vectors[4], vectors[0] > vectors[4],
+               vectors[1] > vectors[3]]
+        dis.append(all((not dis[0], not dis[1], not dis[2], not dis[3])))
+        count = 0
+        index = [i for i in range(len(dis)) if dis[i] == 1]
+        random.shuffle(index)
+        choice = random.choice(index)
+        if choice == 0:
             return vectors[2], 0.0
-        elif vectors[0] < vectors[4]:
+        elif choice == 1:
             return 0.5, vectors[0]/vectors[4]
-        elif vectors[0] > vectors[4]:
+        elif choice == 2:
             return 0.5, -vectors[4]/vectors[0]
-        elif vectors[1] > vectors[3]:
+        elif choice == 3:
             return vectors[2], -vectors[3]/vectors[1]
         else:
             return vectors[2], vectors[1]/vectors[3]
-        
-        
-    def _pid_control(self, target, kp, ki, kd, val):
-        """ Velocity PID control
-            :param target: target velocity
-            :param kp: proportional coefficient
-            
-            :return velocity value
-        """
-        self.pid[val][0] = target - self.pid[val][2]
-        self.pid[val][1] += self.pid[val][0]
-        p_part = kp*self.pid[val][0]
-        i_part = ki*self.pid[val][1] + self.pid[val][4]
-        self._integral = i_part
-        d_part = kd*(self.pid[val][0]-self.pid[val][3])
-        self.pid[val][3] = self.pid[val][0]
-        return p_part + i_part + d_part
-
+    
     def move(self):
         """Move the bot"""
         rospy.loginfo("The bot starts to move")
@@ -94,8 +88,8 @@ class MazeBot:
             dis, ang = self._potetional_field()
             rospy.loginfo("New vector: distance - {0:.3f}; angle - {1:.3f}".format(dis, ang))
             # Calculate and publish new velocity values
-            vel.angular.z = self._pid_control(ang, 60, 0, 0, 'd')
-            vel.linear.x = self._pid_control(dis, 1.5, 0, 0, 'a')
+            vel.angular.z = self._ang_pid.regulator(ang)
+            vel.linear.x = self._dis_pid.regulator(dis)
             self._vel_publisher.publish(vel)
             self._rate.sleep()
 

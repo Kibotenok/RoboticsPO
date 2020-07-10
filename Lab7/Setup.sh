@@ -36,11 +36,8 @@ cd "$goal_dir/maze_ws"
 # Настройка окружения и запуск ROS
 source devel/setup.bash
 roscd wall_explorer/
-chmod u+x src/id_painter_node/main.py
-roscore
-rosrun stage_ros stageros src/world/maze.world
-rosrun wall_explorer main.py
-#roslaunch wall_explorer maze.launch - ошибка
+chmod u+x src/wall_explorer_node/main.py
+roslaunch wall_explorer maze.launch
 
 cd "$cur_dir" > /dev/null
 exit 0
